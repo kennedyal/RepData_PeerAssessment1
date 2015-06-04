@@ -1,27 +1,26 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
+title: "RepDataProj1"
+author: "AllenKennedy"
+date: "Wednesday, June 03, 2015"
 output: 
   html_document:
-    keep_md: true
+    pandoc_args: ["+RTS", "-K64m","-RTS"]
 ---
 
-
-## Loading and preprocessing the data
-
-###Loading required packages
+##Loading required packages
 
 ```{r, results='hide'}
   library(dplyr)
   library(ggplot2)
   library(lattice)
 ```
-###Loading the data
+##Loading the data
   
 ```{r}
 setwd("C:/Users/kennedyal/RepData_PeerAssessment1")
 activity<- read.csv("activity.csv")
 ```
-###Analysis of the data file
+##Analysis of the data file
 ```{r}
 str(activity)
 #As we can see the date is a factor, but we will keep it as a factor for our analysis
@@ -29,7 +28,7 @@ summary(activity)
 #there are 2304 NA steps
 ```
 
-## What is mean total number of steps taken per day?
+##What is mean total number of steps taken per day?
 
 ###total number of steps per day
 ```{r}
@@ -38,6 +37,7 @@ summary <-summarize(day, sum_steps = sum(steps, na.rm = TRUE))
 summary
 
 ```
+
 ###Histogram of total number of steps each day
 
 ```{r}
@@ -52,9 +52,8 @@ mean(summary$sum_steps)
 ###Median of total number of steps each day
 ```{r}
 median(summary$sum_steps)
+```
 
-
-## What is the average daily activity pattern?
 ##What is the average daily activity pattern?
 
 ###Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
@@ -69,7 +68,13 @@ max<-which.max(interval_summary$avg_steps)
 interval_summary[max,]
 ```
 
-## Imputing missing values
+##Impute missing values
+###count number of na rows
+```{r}
+cc <-complete.cases(activity)
+a<- activity[!cc,]
+nrow(a)
+```
 ##impute missing values
 ```{r}
 activity_impute <-activity
@@ -99,8 +104,8 @@ mean(summary_imputed$sum_steps)
 median(summary_imputed$sum_steps)
 ##As we can see there is a slight change after the NA were imputed
 ```
-
-## Are there differences in activity patterns between weekdays and weekends?
+##Are there differences in activity patterns between weekdays and weekends?
+### new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 ```{r}
 activity_impute$date <- as.Date(activity_impute$date, "%Y-%m-%d")
 activity_impute$day<- weekdays(activity_impute$date)
@@ -113,4 +118,4 @@ week_agg <- aggregate(activity_impute$steps, by = list(activity_impute$interval,
 names(week_agg) <-c("interval","weekend","avg_steps")
 xyplot(avg_steps ~ interval | weekend,data = week_agg,type = "l", layout = c(1,2), ylab = "Number of steps")
 ```
-We can see a difference here. We can see that people or more active on the weekends.
+
